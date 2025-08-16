@@ -1,6 +1,6 @@
 // admin_panel.js
 document.addEventListener('DOMContentLoaded', () => {
-    // ACHTUNG: Ersetze DIESE URL durch die URL deines gehosteten Node.js-Backends
+    // URL deines gehosteten Node.js-Backends
     const API_URL = 'https://monadminserver.onrender.com';
     let username = localStorage.getItem('adminUsername');
     let password = localStorage.getItem('adminPassword');
@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Login/Logout Logik ---
     const checkLogin = () => {
         if (username && password) {
+            loginForm.classList.add('hidden');
+            dashboard.classList.remove('hidden');
             fetchAnalytics();
         } else {
             loginForm.classList.remove('hidden');
@@ -58,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('adminUsername', username);
                 localStorage.setItem('adminPassword', password);
                 errorMessage.textContent = '';
-                fetchAnalytics();
+                checkLogin();
             } else {
                 errorMessage.textContent = data.message;
             }
@@ -73,14 +75,18 @@ document.addEventListener('DOMContentLoaded', () => {
         username = null;
         password = null;
         checkLogin();
-        location.reload(); // Seite neu laden für sauberen Zustand
+        location.reload();
     });
 
     // --- Datenabruf und Anzeige ---
     const fetchAnalytics = async () => {
         try {
-            const response = await fetch(`${API_URL}/admin/data?username=${username}&password=${password}`);
+            const response = await fetch(`${API_URL}/admin/data?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
             if (!response.ok) {
+                if (response.status === 401) {
+                    alert('Sitzung abgelaufen oder ungültige Anmeldedaten. Bitte neu anmelden.');
+                    logoutBtn.click();
+                }
                 const errorData = await response.json();
                 throw new Error(errorData.message);
             }
@@ -90,8 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('Fehler beim Abrufen der Analytics:', error);
-            alert(`Fehler: ${error.message}. Bitte neu anmelden.`);
-            logoutBtn.click();
+            alert(`Fehler: ${error.message}.`);
         }
     };
 
@@ -184,5 +189,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // Überprüfe den Anmeldestatus beim Laden der Seite
     checkLogin();
 });
