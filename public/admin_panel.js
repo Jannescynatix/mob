@@ -1,7 +1,7 @@
 // admin_panel.js
 document.addEventListener('DOMContentLoaded', () => {
     // ACHTUNG: Ersetze DIESE URL durch die URL deines gehosteten Node.js-Backends
-    const API_URL = 'https://deine-node-app.onrender.com';
+    const API_URL = 'https://monadminserver.onrender.com';
     let username = localStorage.getItem('adminUsername');
     let password = localStorage.getItem('adminPassword');
 
